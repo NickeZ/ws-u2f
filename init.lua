@@ -1,13 +1,13 @@
 u2f_proto = Proto("u2f", "U2F")
 
-local cids = {}
-cids[0xffffffff] = "BROADCAST"
-local cmds = {}
-cmds[bit32.bor(0x80, 0x03)] = "U2FHID_MSG"
-cmds[bit32.bor(0x80, 0x06)] = "U2FHID_INIT"
-cmds[bit32.bor(0x80, 0x10)] = "CTAPHID_CBOR"
-cmds[bit32.bor(0x80, 0x3b)] = "CTAPHID_KEEPALIVE"
-cmds[bit32.bor(0x80, 0x3f)] = "U2FHID_ERROR"
+local cids = {[0xffffffff] = "BROADCAST"}
+local cmds = {
+        [bit32.bor(0x80, 0x03)] = "U2FHID_MSG",
+        [bit32.bor(0x80, 0x06)] = "U2FHID_INIT",
+        [bit32.bor(0x80, 0x10)] = "CTAPHID_CBOR",
+        [bit32.bor(0x80, 0x3b)] = "CTAPHID_KEEPALIVE",
+        [bit32.bor(0x80, 0x3f)] = "U2FHID_ERROR",
+}
 local f_cid = ProtoField.uint32("u2f.cid", "CID", base.HEX, cids)
 local f_cmd = ProtoField.uint8("u2f.cmd", "CMD", base.HEX, cmds)
 local f_seq = ProtoField.uint8("u2f.seq", "SEQ", base.DEC)
