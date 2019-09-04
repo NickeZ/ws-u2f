@@ -7,6 +7,8 @@ local cmds = {
         [bit32.bor(0x80, 0x10)] = "CTAPHID_CBOR",
         [bit32.bor(0x80, 0x3b)] = "CTAPHID_KEEPALIVE",
         [bit32.bor(0x80, 0x3f)] = "U2FHID_ERROR",
+        [bit32.bor(0x80, 0x40)] = "U2FHID_VENDOR0",
+        [bit32.bor(0x80, 0x41)] = "U2FHID_VENDOR1",
 }
 local f_cid = ProtoField.uint32("u2f.cid", "CID", base.HEX, cids)
 local f_cmd = ProtoField.uint8("u2f.cmd", "CMD", base.HEX, cmds)
@@ -37,7 +39,7 @@ function u2f_proto.dissector(buffer, pinfo, tree)
         subtree:add(f_cid, buffer(0, 4))
 
         if bit32.btest(cmd, 0x80) then
-                local bcnt = buffer(5,1):uint() * 255 + buffer(6, 1):uint()
+                local bcnt = buffer(5,2):uint()
                 subtree:add(f_cmd, buffer(4, 1))
                 subtree:add(f_bcnt, buffer(5, 2))
 
@@ -67,6 +69,8 @@ function u2f_proto.dissector(buffer, pinfo, tree)
                         pinfo.cols['info'] = "U2FHID SYNC"
                 elseif cmd == bit32.bor(0x80, 0x3f) then
                         pinfo.cols['info'] = "U2FHID ERROR"
+                elseif cmd >= bit32.bor(0x80, 0x40) and cmd < bit32.bor(0x80, 0x7f) then
+                        pinfo.cols['info'] = "U2FHID VENDOR" .. cmd - 0x80 - 0x40
                 end
                 if bcnt > 64-7 then
                         -- pinfo.desegment_len = bcnt - (64-7)
